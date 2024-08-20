@@ -3,13 +3,17 @@
  
 #include <Wire.h>
  
-#define IN1 2
-#define IN2 4
-#define IN3 6
-#define IN4 7
+#define IN1 7
+#define IN2 5
+#define IN3 3
+#define IN4 2
 
-#define speed_left 3       // 모터 속도 제어 왼쪽
-#define speed_right 5      // 모터 속도 제어 오른쪽
+#define speed_left 6       // 모터 속도 제어 왼쪽
+#define speed_right 4      // 모터 속도 제어 오른쪽
+
+#define fixed_speed_left 160      // 보정한 값
+#define fixed_speed_right 190     // 보정한 값
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void forward() {
@@ -17,8 +21,8 @@ void forward() {
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
-    analogWrite(speed_left, 255);
-    analogWrite(speed_right, 255);
+    analogWrite(speed_left, fixed_speed_left);
+    analogWrite(speed_right, fixed_speed_right);
 }
 
 void setup()
@@ -32,11 +36,18 @@ void setup()
   Serial.println("\nI2C Scanner");
   lcd.clear();
 
-}
+    pinMode(IN1, OUTPUT);  // A 모터 1
+    pinMode(IN2, OUTPUT);  // A 모터 2
+    pinMode(IN3, OUTPUT);  // B 모터 1
+    pinMode(IN4, OUTPUT);  // B 모터 2
+
+    pinMode(speed_left, OUTPUT);
+    pinMode(speed_right, OUTPUT);
+    }
  
 void loop()
 {
-  
+  forward();
   byte error, address;
   int nDevices;
   Serial.println("Scanning...");
