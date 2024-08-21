@@ -3,11 +3,11 @@
 
 int RED = 11;
 int GREEN = 10;
-int BLUE = 9;
+int BLUE = 9;    // LED(주빨갈)
 
 int b1 = 8;
 int b2 = 12;
-int b3 = 13;
+int b3 = 13;    // 버튼(LED에서 가까운 순서, 1~3번, 노초파)
 
 int light = 5;
 
@@ -27,30 +27,29 @@ void setup() {
     pinMode(b2, INPUT_PULLUP);
     pinMode(b3, INPUT_PULLUP);
 
-    // I2C LCD를 초기화 합니다.
-    lcd.init();
-    // I2C LCD의 백라이트를 켜줍니다.
-    lcd.backlight();
+    
+    lcd.init();    // I2C LCD 초기화
+    lcd.backlight();    // I2C LCD 백라이트 on
     lcd.setCursor(0, 0);
-    lcd.print("    waiting    ");  // 문구를 출력합니다.
+    lcd.print("    waiting    ");
 }
 
 void red() {
-    analogWrite(RED, light); // RED ON
+    analogWrite(RED, light);    // RED ON
     analogWrite(GREEN, 0);
     analogWrite(BLUE, 0);
 }
 
 void green() {
     analogWrite(RED, 0);
-    analogWrite(GREEN, light); // GREEN ON
+    analogWrite(GREEN, light);    // GREEN ON
     analogWrite(BLUE, 0);
 }
 
 void blue() {
     analogWrite(RED, 0);
     analogWrite(GREEN, 0);
-    analogWrite(BLUE, light);
+    analogWrite(BLUE, light);    // BLUE ON
 }
 void loop() {
 
@@ -59,13 +58,13 @@ void loop() {
     int b2_state = digitalRead(b2);
     int b3_state = digitalRead(b3);
 
-    if (b1_state == 0) {
+    if (b1_state == 0) {    // 1번 버튼 눌림
         if (state2>0)state2--;
         delay(200);
         lcd.clear();
     }
 
-    if (b2_state == 0) {
+    if (b2_state == 0) {    // 2번 버튼 눌림
         state++;
         state2=0;
         lcd.clear();
@@ -73,7 +72,7 @@ void loop() {
     }
 
 
-    if (b3_state == 0) {
+    if (b3_state == 0) {    // 3번 버튼 눌림림
         if (state2<255)state2++;
         delay(200);
 
