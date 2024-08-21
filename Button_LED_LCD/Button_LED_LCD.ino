@@ -112,15 +112,15 @@ void loop() {
     analogWrite(BLUE, B);
 */
 
-    if(R>G || R>B){
+    if(R>G && R>B){
       red();
     }
 
-    elif(G>R || G>B){
+    elif(G>R && G>B){
       green();
     }
 
-    elif(B>R || B>G){
+    elif(B>R && B>G){
       blue();
     }
 
