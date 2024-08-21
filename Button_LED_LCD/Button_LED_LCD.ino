@@ -72,7 +72,7 @@ void loop() {
     }
 
 
-    if (b3_state == 0) {    // 3번 버튼 눌림림
+    if (b3_state == 0) {    // 3번 버튼 눌림
         if (state2<255)state2++;
         delay(200);
 
