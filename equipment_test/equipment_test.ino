@@ -222,7 +222,7 @@ void loop() {
         ConvertMotor++;
       }  //꾹 누르면 빠르게 증가
       else if (millis() - Button1_press_start >= Button1_count_interval) {
-        ConvertMotor += 1 + min(2, (millis() - Button1_press_start - Button1_count_interval) * 0.005);
+        ConvertMotor += 1 + min(4, (millis() - Button1_press_start - Button1_count_interval) * 0.005);
       }
       Button1_Flag = false;
     } else if (Button1 == HIGH) {
@@ -237,7 +237,7 @@ void loop() {
         ConvertMotor--;
       }  //꾹 누르면 빠르게 감소
       else if (millis() - Button3_press_start >= Button3_count_interval) {
-        ConvertMotor -= 1 + min(2, (millis() - Button3_press_start - Button3_count_interval) * 0.005);
+        ConvertMotor -= 1 + min(4, (millis() - Button3_press_start - Button3_count_interval) * 0.005);
       }
       Button3_Flag = false;
     } else if (Button3 == HIGH) {
@@ -278,23 +278,23 @@ void loop() {
     //모터 조향 출력
     String LeftSpeedDisplay = "";
     String RightSpeedDisplay = "";
-    for (int i = 3; i > String(LeftSpeed).length(); i--) {
+    for (int i = 4; i > String(LeftSpeed).length(); i--) {
       LeftSpeedDisplay += " ";
     }
     LeftSpeedDisplay += String(LeftSpeed);
-    for (int i = 3; i > String(RightSpeed).length(); i--) {
+    for (int i = 4; i > String(RightSpeed).length(); i--) {
       RightSpeedDisplay += " ";
     }
     RightSpeedDisplay += String(RightSpeed);
     if (Button2_Count % 2 == 0) {
       lcd.setCursor(0, 1);
       lcd.print("[R:" + String(RightSpeedDisplay) + "]");
-      lcd.setCursor(9, 1);
+      lcd.setCursor(8, 1);
       lcd.print(" L:" + String(LeftSpeedDisplay) + " ");
     } else {
       lcd.setCursor(0, 1);
       lcd.print(" R:" + String(RightSpeedDisplay) + " ");
-      lcd.setCursor(9, 1);
+      lcd.setCursor(8, 1);
       lcd.print("[L:" + String(LeftSpeedDisplay) + "]");
     }
     //Serial.print("LM: " + String(LeftSpeedDisplay) + " RM: " + String(RightSpeedDisplay) + "\n");
@@ -344,28 +344,28 @@ void loop() {
     //모터 조향 출력
     String LeftSpeedDisplay = "";
     String RightSpeedDisplay = "";
-    for (int i = 3; i > String(LeftSpeed).length(); i--) {
+    for (int i = 4; i > String(LeftSpeed).length(); i--) {
       LeftSpeedDisplay += " ";
     }
     LeftSpeedDisplay += String(LeftSpeed);
-    for (int i = 3; i > String(RightSpeed).length(); i--) {
+    for (int i = 4; i > String(RightSpeed).length(); i--) {
       RightSpeedDisplay += " ";
     }
     RightSpeedDisplay += String(RightSpeed);
     if (skew == 0) {
       lcd.setCursor(0, 1);
       lcd.print("[R:" + String(RightSpeedDisplay) + " ");
-      lcd.setCursor(9, 1);
+      lcd.setCursor(8, 1);
       lcd.print(" L:" + String(LeftSpeedDisplay) + "]");
     } else if (skew == -1) {
       lcd.setCursor(0, 1);
       lcd.print(" R:" + String(RightSpeedDisplay) + " ");
-      lcd.setCursor(9, 1);
+      lcd.setCursor(8, 1);
       lcd.print("[L:" + String(LeftSpeedDisplay) + "]");
     } else if (skew == 1) {
       lcd.setCursor(0, 1);
       lcd.print("[R:" + String(RightSpeedDisplay) + "]");
-      lcd.setCursor(9, 1);
+      lcd.setCursor(8, 1);
       lcd.print(" L:" + String(LeftSpeedDisplay) + " ");
     }
     //Serial.print("LM: " + String(LeftSpeedDisplay) + " RM: " + String(RightSpeedDisplay) + "\n");
