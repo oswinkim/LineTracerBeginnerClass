@@ -62,7 +62,7 @@ float Diffential4Staright = 0.00;                               //직진 상태 
 int LeftSpeed = (int)((MinMotorOutput + MaxMotorOutput) / 2);   //좌측 모터 초기 속도
 int RightSpeed = (int)((MinMotorOutput + MaxMotorOutput) / 2);  //우측 모터 초기 속도
 
-int softmin = -222    ;  //-222;
+int softmin = -222;  //-222;
 int softmax = 222;
 
 int minSpeed = 0;
@@ -75,16 +75,18 @@ int mode = 0;
 int skew = 0;  // 치우침 방향(0: 정, -1: 좌, 1:우)
 
 //pid 관련
-float kp = 0.5;
-float kd = 0.0;
-float ki = 0.0;
+float kp = 0.25;
+float kd = 0.01;
+float ki = 0.05;
 
 long error = 0;
 long pre_error = 0;
 long error_integration = 0;
 long error_Differention = 0;
 
-unsigned long error_start_time = 0;
+unsigned long Left_error_start_time = 0;
+
+unsigned long Right_error_start_time = 0;
 
 //pid LeftMotorSpeed(MaxLeft);
 //pid RightMotorSpeed(MaxRight);
@@ -160,8 +162,8 @@ void loop() {
       }
 
       if (mode == 0) {
-        LeftSpeed = maxSpeed*L_Polarity;
-        RightSpeed = minSpeed*R_Polarity;
+        LeftSpeed = maxSpeed * L_Polarity;
+        RightSpeed = minSpeed * R_Polarity;
         ConvertMotor = RightSpeed;
       } else if (mode == 1) {
         minSpeed = min(abs(LeftSpeed), abs(RightSpeed));
@@ -302,6 +304,7 @@ void loop() {
 
   //1번 온오프 제어 주행
   else if (mode == 1) {
+    /*
     //양측 센서 모두 선 감지 시 치우침 없음
     if ((left_sensor == HIGH) && (right_sensor == HIGH)) {
       skew = 0;
@@ -313,26 +316,44 @@ void loop() {
     //좌측 센서만 선 감지 시 우측 치우침
     if ((left_sensor == LOW) && (right_sensor == HIGH)) {
       skew = 1;
+    }*/
+    /*
+    //양측 센서 모두 선 감지 시 치우침 없음
+    if ((left_sensor == LOW) && (right_sensor == LOW)) {
+      skew = 0;
+    }*/
+    //우측 센서만 선 감지 시 좌측 치우침
+    if ((left_sensor == HIGH) && (right_sensor == LOW)) {
+      skew = -1;
+      LeftSpeed = minSpeed;
+      RightSpeed = maxSpeed;
+    }
+    //좌측 센서만 선 감지 시 우측 치우침
+    else if ((left_sensor == LOW) && (right_sensor == HIGH)) {
+      skew = 1;
+      LeftSpeed = maxSpeed;
+      RightSpeed = minSpeed;
     }
 
+    /*
     //치우침 없을 시 직진
     if (skew == 0) {
       LeftSpeed = maxSpeed;
       RightSpeed = maxSpeed;
     }
-    //좌측 치우침 시 우회전
-    else if (skew == -1) {
+    //좌측 치우침 시 좌회전
+    else if (skew == 1) {
       LeftSpeed = minSpeed;
       RightSpeed = maxSpeed;
     }
-    //우측 치우침 시 좌회전
-    else if (skew == 1) {
+    //우측 치우침 시 우회전
+    else if (skew == -1) {
       LeftSpeed = maxSpeed;
       RightSpeed = minSpeed;
-    }
+    }*/
 
     //모터 동작
-    MotorAction(LeftSpeed*L_Polarity, RightSpeed*R_Polarity);
+    MotorAction(LeftSpeed * L_Polarity, RightSpeed * R_Polarity);
 
     //모드 출력
     lcd.setCursor(0, 0);
@@ -375,8 +396,6 @@ void loop() {
 
   //2번 P 제어 주행
   else if (mode == 2) {
-
-
     //2번 버튼: 좌 우 모터 선택
 
     /*
@@ -492,7 +511,6 @@ void loop() {
 
 
 
-
     //1번 버튼: kp 증가
     if ((Button1 == LOW) && (Button1_Flag)) {
       Button1_press_start = millis();
@@ -513,58 +531,54 @@ void loop() {
     //kp 최소 최대 제한
     kp = max(0.01, min(1, (Button1_Count - Button3_Count) * 0.01));
 
-    //양측 센서 모두 선 감지 시 반대 회전
-    /*
-    Serial.print("B: " + String(skew) + " ");
-    if (left_sensor == HIGH) {
-      left_start_time = millis();
-    } else if (right_sensor == HIGH) {
-      right_start_time = millis();
-    }
-    if (millis() - left_start_time <= 10) {
-      if (right_sensor == HIGH) {
-        skew *= -1;
-        error *= 1.1;
-      } else if (millis() - right_start_time <= 10) {
-        if (left_sensor == HIGH) {
-          skew *= -1;
-          error *= 1.1;
-        }
-      }
-    } else if (millis() - right_start_time <= 10) {
-      if (left_sensor == HIGH) {
-        skew *= -1;
-        error *= 1.1;
-      }
-    }
-    Serial.print("A: " + String(skew) + "\n------------\n");
-    //*/
+    kd = 0.01;
+    ki = 0.05;
+
+
+    //양측 센서 모두 선 감지 시
     if ((left_sensor == HIGH) && (right_sensor == HIGH)) {
-      //error_start_time *= -1;
+      Left_error_start_time = millis();
+      Right_error_start_time = millis();
+      error_integration = 0;
+      skew = 0;
     } else if ((left_sensor == LOW) && (right_sensor == LOW)) {
-      //error_start_time *= 0.99;
+      if (Left_error_start_time <= 0) {
+        Left_error_start_time = millis();
+      }
+      if (Right_error_start_time <= 0) {
+        Right_error_start_time = millis();
+      }
     }
     //우측 센서 선 감지 시 좌측 치우침
     else if ((left_sensor == LOW) && (right_sensor == HIGH)) {
       if (skew != -1) {
         skew = -1;
-        error_start_time = millis() - abs(error) / 2;
+        Right_error_start_time = 0;
+        Left_error_start_time = millis();
       }
     }
     //좌측 센서 선 감지 시 우측 치우침
     else if ((left_sensor == HIGH) && (right_sensor == LOW)) {
       if (skew != 1) {
         skew = 1;
-        error_start_time = millis() - abs(error) / 2;
+        Right_error_start_time = millis();
+        Left_error_start_time = 0;
       }
     }
 
-
     //시간 에러와 에러 방향 구하기
-    error = pow(millis() - error_start_time, 1) * skew * 0.1;
+    if (Right_error_start_time != 0 && Left_error_start_time != 0) {
+      error = ((millis() - Right_error_start_time) + (millis() - Left_error_start_time)) * skew;
+    } else if (Right_error_start_time != 0) {
+      error = ((millis() - Right_error_start_time)) * skew;
+    } else if (Left_error_start_time != 0) {
+      error = ((millis() - Left_error_start_time)) * skew;
+    }
     error_integration += error;
-    error_Differention = error - pre_error;
+    error_Differention = abs((abs(error) - abs(pre_error)) * 0.5 + abs(error_Differention) * 0.5) * skew;
     float gain = (error * kp) + (error_integration * ki) + (error_Differention * kd);
+
+    Serial.println("P: " + String(error) + " I: " + String(error_integration) + " D: " + String(error_Differention));
 
     //모터 속도 계산
     LeftSpeed = (int)(MaxMotorOutput + gain);
@@ -608,10 +622,10 @@ void loop() {
       lcd.setCursor(8, 1);
       lcd.print("[L:" + String(LeftSpeedDisplay) + "]");
       lcd.setCursor(0, 1);
-      lcd.print(" R:" + String(RightSpeedDisplay));
+      lcd.print(" R:" + String(RightSpeedDisplay) + " ");
     } else if (skew == 1) {
       lcd.setCursor(8, 1);
-      lcd.print(" L:" + String(LeftSpeedDisplay));
+      lcd.print(" L:" + String(LeftSpeedDisplay) + " ");
       lcd.setCursor(0, 1);
       lcd.print("[R:" + String(RightSpeedDisplay) + "]");
     }
